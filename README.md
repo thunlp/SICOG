@@ -1,5 +1,6 @@
 # SIcog 
 **Towards Self-Improving Systematic Cognition for Next-Generation Foundation MLLMs**  
+(https://arxiv.org/abs/2503.12303)
 
 ![Framework](docs/run_ex_cap_new.jpg)
 
