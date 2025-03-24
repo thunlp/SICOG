@@ -14,3 +14,11 @@ Extensive experiments on both low- and high-resolution MLLMs across diverse benc
 
 > *"All knowledge begins with perception, but not all knowledge arises from perception."*  
 > — *Immanuel Kant*
+
+```bibtex
+@article{zhang2025towards,
+  title={Towards Self-Improving Systematic Cognition for Next-Generation Foundation MLLMs},
+  author={Zhang, Xiaoying and Peng, Da and Zhang, Yipeng and Guo, Zonghao and Wu, Chengyue and Chen, Chi and Ke, Wei and Meng, Helen and Sun, Maosong},
+  journal={arXiv preprint arXiv:2503.12303},
+  year={2025}
+}
