@@ -6,10 +6,16 @@
 
 ## Abstract
 
-Recent progress in (multimodal) large language models ((M)LLMs) has shifted focus from pre-training to inference-time compute scaling and post-training optimization, driven by concerns over limited high-quality real-world data. However, these strategies alone are insufficient for advancing model capabilities. We hypothesize that effective model improvement requires a strong synergy among pre-training, inference-time compute scaling, and post-training optimization. We validate this hypothesis in the context of multimodal pre-training for foundation MLLM construction.
+Recent progress in (multimodal) large language models ((M)LLMs) has shifted focus from pre-training to inference-time compute scaling and post-training optimization, driven by concerns over limited high-quality real-world data. However, these strategies alone are insufficient for advancing model capabilities.
 
-In this paper, we introduce **Self-Improving Cognition (SICOG)**, a self-learning framework for constructing next-generation foundation MLLMs by imparting multimodal knowledge and enhancing their systematic cognitive capabilities through multimodal pre-training with self-generated data. Specifically, we introduce **Chain-of-Description (CoD)**, a step-by-step visual understanding method to improve comprehensive perception, and integrate structured **Chain-of-Thought (CoT)** reasoning to support in-depth multimodal reasoning.
+We hypothesize that **effective model improvement requires a strong synergy among pre-training, inference-time compute scaling, and post-training optimization**.
 
-SICOG first equips a base model with systematic perception and reasoning using minimal external supervision. The enhanced model then generates candidate image captions and CoT reasoning outputs, which are curated via a self-consistency mechanism. These curated samples are subsequently used for large-scale multimodal pre-training, completing a self-learning cycle that strengthens the model’s cognitive foundation.
+In this paper, we validate this hypothesis in the context of multimodal pre-training for foundation MLLM construction. We introduce Self-Improving Cognition (SICOG), a self-learning framework for constructing next-generation foundation MLLMs by imparting multimodal knowledge and enhancing their systematic cognitive capabilities through multimodal pre-training with self-generated data.
+
+Specifically, we introduce Chain-of-Description (CoD), a step-by-step visual understanding method to improve comprehensive perception, and integrate structured chain-of-thought (CoT) reasoning to support in-depth multimodal reasoning.
+
+SICOG first equips a base model with systematic perception and reasoning using minimal external supervision. The enhanced model then generates candidate image captions and CoT-style reasoning responses for *unlabeled images and image-question pairs across diverse tasks*, which are curated through a self-consistency mechanism.
+
+These curated samples are subsequently used for large-scale multimodal pre-training, completing a self-learning cycle that strengthens the model’s cognitive foundation.
 
 Extensive experiments demonstrate that SICOG produces next-generation foundation MLLMs with substantially improved multimodal cognition, outperforming prevailing pre-training approaches. These findings empirically establish SICOG as a promising framework for realizing a complete self-improving paradigm.
