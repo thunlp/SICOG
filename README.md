@@ -2,7 +2,7 @@
 ## A First Step Toward Next-Generation Foundation MLLMs via Self-Improving Systematic Cognition  
 [**arXiv:2503.12303**](https://arxiv.org/abs/2503.12303)
 
-![Framework](docs/run_ex_cap_new.jpg)
+![Framework](docs/run_ex_cap_new.png)
 
 ## Abstract
 
