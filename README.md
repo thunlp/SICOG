@@ -1,10 +1,15 @@
 # Will Pre-Training Ever End?  
 ## A First Step Toward Next-Generation Foundation MLLMs via Self-Improving Systematic Cognition  
-[**arXiv:2503.12303**](https://arxiv.org/abs/2503.12303)
+📄 [**arXiv:2503.12303**](https://arxiv.org/abs/2503.12303)  
+📁 [Google Drive (Additional Resources)](https://drive.google.com/drive/folders/1IAmh7eCErl5fIXffXBC-B9GkXrEySMqc?usp=drive_link)
 
-![Framework](docs/run_ex_cap_new.png)
+---
 
-## Abstract
+![SICOG Framework](docs/run_ex_cap_new.png)
+
+---
+
+## 🧠 Abstract
 
 Recent progress in (multimodal) large language models ((M)LLMs) has shifted focus from pre-training to inference-time compute scaling and post-training optimization, driven by concerns over limited high-quality real-world data. However, these strategies alone are insufficient for advancing model capabilities.
 
