@@ -1,7 +1,7 @@
 # Will Pre-Training Ever End?  
 ## A First Step Toward Next-Generation Foundation MLLMs via Self-Improving Systematic Cognition  
 📄 [**arXiv:2503.12303**](https://arxiv.org/abs/2503.12303)  
-📁 [Google Drive (Additional Resources, e.g., Paper, Training Data)](https://drive.google.com/drive/folders/1IAmh7eCErl5fIXffXBC-B9GkXrEySMqc?usp=drive_link)
+📁 [Google Drive (Additional Resources, e.g., Paper, Training Data, Model Checkpoints)](https://drive.google.com/drive/folders/1IAmh7eCErl5fIXffXBC-B9GkXrEySMqc?usp=drive_link)
 
 ---
 
