@@ -1,0 +1,34 @@
+You are using a model of type qwen2 to instantiate a model of type llava_qwen. This is not supported for all configurations of models and can yield errors.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:04<00:14,  4.81s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:09<00:09,  4.76s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:15<00:05,  5.51s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:17<00:00,  3.82s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:17<00:00,  4.29s/it]
+Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+  0%|          | 0/125 [00:00<?, ?it/s]  0%|          | 0/125 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/jeeves/xyzhang/mm-self-training/llava/inference/recap_558k_new.py", line 235, in <module>
+    recap(args)
+  File "/home/jeeves/xyzhang/mm-self-training/llava/inference/recap_558k_new.py", line 173, in recap
+    for batch in tqdm(dataloader, disable=not accelerator.is_local_main_process):
+  File "/home/jeeves/.conda/envs/vllm_infer/lib/python3.10/site-packages/tqdm/std.py", line 1178, in __iter__
+    for obj in iterable:
+  File "/home/jeeves/.conda/envs/vllm_infer/lib/python3.10/site-packages/accelerate/data_loader.py", line 452, in __iter__
+    current_batch = next(dataloader_iter)
+  File "/home/jeeves/.conda/envs/vllm_infer/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 630, in __next__
+    data = self._next_data()
+  File "/home/jeeves/.conda/envs/vllm_infer/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 674, in _next_data
+    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
+  File "/home/jeeves/.conda/envs/vllm_infer/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 51, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/jeeves/.conda/envs/vllm_infer/lib/python3.10/site-packages/torch/utils/data/_utils/fetch.py", line 51, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/home/jeeves/xyzhang/mm-self-training/llava/inference/recap_558k_new.py", line 81, in __getitem__
+    if self.default_prompt:
+AttributeError: 'CustomDataset' object has no attribute 'default_prompt'
+Traceback (most recent call last):
+  File "/home/jeeves/.conda/envs/vllm_infer/bin/accelerate", line 8, in <module>
+    sys.exit(main())
+  File "/home/jeeves/.conda/envs/vllm_infer/lib/python3.10/site-packages/accelerate/commands/accelerate_cli.py", line 46, in main
+    args.func(args)
+  File "/home/jeeves/.conda/envs/vllm_infer/lib/python3.10/site-packages/accelerate/commands/launch.py", line 1075, in launch_command
+    simple_launcher(args)
+  File "/home/jeeves/.conda/envs/vllm_infer/lib/python3.10/site-packages/accelerate/commands/launch.py", line 681, in simple_launcher
+    raise subprocess.CalledProcessError(returncode=process.returncode, cmd=cmd)
+subprocess.CalledProcessError: Command '['/home/jeeves/.conda/envs/vllm_infer/bin/python', 'inference/recap_558k_new.py', '--model-path', '/mnt/data/user/tc_agi/xyzhang/personal_model/llava-qwen2-uhd-144-7b', '--annotation-file', '/data/xyzhang/ALLaVA/download/allava_vflan/ALLaVA-Caption-VFLAN-4V_split_test500_valid.json', '--image-folder', '/data/xyzhang/ALLaVA/download/allava_vflan', '--result-file', '/data/xyzhang/caption_results/tuned_./test_llava_mme_2.json', '--temperature', '0.9', '--top_p', '0.9', '--chunk-idx', '2', '--num-chunks', '4']' returned non-zero exit status 1.
