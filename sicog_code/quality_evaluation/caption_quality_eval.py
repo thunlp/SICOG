@@ -1,7 +1,6 @@
 import os
 import json
 import random
-random.seed(2024)
 import argparse
 import numpy as np
 from datasets import load_from_disk
@@ -14,30 +13,6 @@ from datasets import load_dataset, Dataset
 import torch
 from tqdm import tqdm
 import re
-import string
-def normalize_answer(s):
-    """Lower text and remove punctuation, articles and extra whitespace."""
-
-    def remove_articles(text):
-        return re.sub(r'\b(a|an|the)\b', ' ', text)
-
-    def white_space_fix(text):
-        return ' '.join(text.split())
-
-    def handle_punc(text):
-        exclude = set(string.punctuation + "".join([u"‘", u"’", u"´", u"`"]))
-        return ''.join(ch if ch not in exclude else ' ' for ch in text)
-
-    def lower(text):
-        return text.lower()
-
-    def replace_underscore(text):
-        return text.replace('_', ' ')
-
-    return white_space_fix(remove_articles(handle_punc(lower(replace_underscore(s))))).strip()
-
-def exact_match_score(prediction, ground_truth):
-    return normalize_answer(prediction) == normalize_answer(ground_truth)
 
 def encode_sentences(dataset, encoder_model_name_or_path, accelerator):
     """Encode sentences using the specified embedding model with Accelerate."""
@@ -54,7 +29,7 @@ def encode_sentences(dataset, encoder_model_name_or_path, accelerator):
 
     elif "nvidia/NV-Embed-v2" in encoder_model_name_or_path:
         model = SentenceTransformer(encoder_model_name_or_path, trust_remote_code=True).to(accelerator.device)
-        model.max_seq_length = 2048
+        model.max_seq_length = 1024
         model.tokenizer.padding_side = "right"
 
         def add_eos(input_examples):
@@ -62,7 +37,7 @@ def encode_sentences(dataset, encoder_model_name_or_path, accelerator):
 
         sentence_embeddings = model.encode(
             list(tqdm(add_eos(sentences), desc="Encoding sentences")),
-            batch_size=2,
+            batch_size=4,
             normalize_embeddings=True
         )
 
@@ -100,6 +75,7 @@ def calculate_mbr_scores(args, dataset, accelerator):
         similarity_matrix = embeddings @ embeddings.T
         item["mbr_scores_embedding"] = similarity_matrix.mean(axis=1).tolist()
         item["prediction"] = item["predictions"][np.argmax(item["mbr_scores_embedding"])]
+        item["prediction"] = item["candidates"][np.argmax(item["mbr_scores_embedding"])]
         return item
 
     # Use tqdm to track the mapping process
@@ -120,8 +96,8 @@ def evaluate_and_save(args, dataset, accelerator):
     def evaluate_item(item):
         sorted_indices = np.argsort(item["mbr_scores_embedding"])
         item["chosen"] = item["prediction"]
-        item["rejected"] = item["predictions"][random.choice(sorted_indices[:len(sorted_indices) // 2])]
-
+        # item["rejected"] = item["predictions"][random.choice(sorted_indices[:len(sorted_indices) // 2])]
+        item["rejected"] = item["candidates"][random.choice(sorted_indices[:len(sorted_indices) // 2])]
         return item
 
     # Use tqdm to track the evaluation process
@@ -139,77 +115,101 @@ def evaluate_and_save(args, dataset, accelerator):
             "prompt": item["conversations"][0]["value"],
             "chosen": item["chosen"],
             "rejected": item["rejected"],
-            "mbr_scores_embedding": item["mbr_scores_embedding"]
+            "candidates": item["candidates"]
         }
 
     final_dataset = dataset.map(
         format_final_item,
-        remove_columns=[col for col in dataset.column_names if col not in ["id", "image", "conversations", "prompt", "chosen", "rejected", "mbr_scores_embedding"]],
+        remove_columns=[col for col in dataset.column_names if col not in ["id", "image", "conversations", "prompt", "chosen", "rejected", "mbr_scores_embedding", "candidates"]],
         desc="Formatting final dataset"
     )
     os.makedirs(os.path.dirname(args.dataset_output_path), exist_ok=True)
     # Write the final dataset to a JSON file
     final_dataset = final_dataset.to_list()
-    sim_scores = [item["mbr_scores_embedding"] for item in final_dataset]
-    avg_sim = np.mean(sim_scores)
+    # sim_scores = []
+    new_final = []
+    final085 = []
+    final08 = []
+    for item in final_dataset:
+        # print("score_embed: ", item["mbr_scores_embedding"])
+        if np.max(item["mbr_scores_embedding"]) >= 0.9:
+            new_final.append(item)
+        if np.max(item["mbr_scores_embedding"]) >= 0.85:
+            final085.append(item)
+        if np.max(item["mbr_scores_embedding"]) >= 0.8:
+            final08.append(item)
 
+    # new_final = [item for item in final_dataset if np.max(item["mbr_scores_embedding"]) >= 0.9]
+    # for item in final_dataset:
+    #     item_sim = np.max(item["mbr_scores_embedding"])
+    #     sim_scores.append(item_sim)
+    # print("list sim scores: ", sim_scores)
+    # avg_sim = np.mean(sim_scores)
     # final_dataset = [{"avg_sim": np.mean(sim_scores)}] + final_dataset
-    print("avg_sim score: ", avg_sim)
-    eval_results = {"avg_sim": avg_sim}
-    # accelerator.print(json.dumps(final_dataset, indent=4))
+    # print("avg_sim score: ", avg_sim)
+    # accelerator.print(json.dumps(new_final indent=4))
+    args.dataset_output_path = args.dataset_output_path.split('.json')[0] + "_len_" + str(len(final_dataset)) + ".json"
+    args.filtered09_output_path = args.filtered_output_path.split('.json')[0] + "09_len_" + str(len(new_final)) + ".json"
+    args.filtered085_output_path = args.filtered_output_path.split('.json')[0] + "085_len_" + str(len(final085)) + ".json"
+    args.filtered08_output_path = args.filtered_output_path.split('.json')[0] + "08_len_" + str(len(final08)) + ".json"
     with open(args.dataset_output_path, "w") as output_file:
         json.dump(final_dataset, output_file, indent=4)
-    with open(args.output_path, "w") as output_file2:
-        json.dump(eval_results, output_file2, indent=4)
+    with open(args.filtered09_output_path, "w") as output_file2:
+        json.dump(new_final, output_file2, indent=4)
+    with open(args.filtered085_output_path, "w") as output_file3:
+        json.dump(final085, output_file3, indent=4)
+    with open(args.filtered08_output_path, "w") as output_file4:
+        json.dump(final08, output_file4, indent=4)
+
+
+def extract_answer(text):
+    print("text: ", text)
+    pattern1 = r"Step 5: .*?\n\n(.*)"
+    pattern2 = r"Step 5: .*?\n(.*)"
+    pattern3 = r"Step 1: .*?\n\n(.*)"
+    pattern4 = r"Step 1: .*?\n(.*)"
+    if "Step" in text:
+        match1 = re.search(pattern1, text, re.DOTALL)
+        match2 = re.search(pattern2, text, re.DOTALL)
+        match3 = re.search(pattern3, text, re.DOTALL)
+        match4 = re.search(pattern4, text, re.DOTALL)
+        if match1:
+            content_after_step_5 = match1.group(1).strip()
+        elif match2:
+            content_after_step_5 = match2.group(1).strip()
+        elif match3:
+            content_after_step_5 = match3.group(1).strip()
+        elif match4:
+            content_after_step_5 = match4.group(1).strip()
+        else:
+            content_after_step_5 = text
+        return content_after_step_5
+    else:
+        return text
+
+
 def read_json(input_file_path):
     """Reads a JSON file and extracts candidate predictions."""
     with open(input_file_path, "r", encoding="utf-8") as input_file:
         input_data = json.load(input_file)
 
     # Only process the first 10 items for debugging or testing purposes
-    input_data = input_data[:10000]
-    # input_data = random.sample(input_data, 10000)
+    # input_data = input_data[:100]
     candidate_list = []
-        # Regex pattern to match content after "Step 5:"
-    pattern1 = r"Step 5: .*?\n\n(.*)"
-    pattern2 = r"Step 5: .*?\n(.*)"
-    pattern3 = r"Step 1: .*?\n\n(.*)"
-    pattern4 = r"Step 1: .*?\n(.*)"
+
+    # # Regex pattern to match content after "Step 5:"
+    # pattern1 = r"Step 5: .*?\n\n(.*)"
+    # pattern2 = r"Step 5: .*?\n(.*)"
+
     for item in input_data:
         item_ = copy.deepcopy(item)
-        item_["predictions"] = []
-        for item in item_["candidates"]:
-            # Search for the pattern in the text
-            match1 = re.search(pattern1, item, re.DOTALL)
-            match2 = re.search(pattern2, item, re.DOTALL)
-            match3 = re.search(pattern3, item, re.DOTALL)
-            match4 = re.search(pattern4, item, re.DOTALL)
-            # Extract and print the content
-            if match1:
-                content_after_step_5 = match1.group(1).strip()
-                # print(content_after_step_5)
-                item_["predictions"].append(content_after_step_5)
-            elif match2:
-                content_after_step_5 = match2.group(1).strip()
-                # print(content_after_step_5)
-                item_["predictions"].append(content_after_step_5)
-            elif match3:
-                content_after_step_5 = match3.group(1).strip()
-                # print(content_after_step_5)
-                item_["predictions"].append(content_after_step_5)
-            elif match4:
-                content_after_step_5 = match4.group(1).strip()
-                # print(content_after_step_5
-                item_["predictions"].append(content_after_step_5)
-            else:
-                # print("Pattern not found.")
-                item_["predictions"].append(item)
+        # print("item: ", item_)  # Optional debug print statement
+        # item_["candidates"] = [item for item in item_["candidates"] if item != ""]
+        item_["predictions"] = [extract_answer(item) for item in item_["candidates"]]
         # item_["predictions"] = [item.split("Step 5: Organize all observations into a detailed, cohesive description.")[-1].strip() for item in item_["candidates"]]
         for item in item_["predictions"]:
             if "Step" in item:
                 print("item preds: ", item_["predictions"])
-        print("len predictions:", len(item_["predictions"]))
-        assert len(item_["predictions"]) == 2
         candidate_list.append(item_)
     # print("candidatelist: ", candidate_list)
 
@@ -239,6 +239,7 @@ if __name__ == "__main__":
     parser.add_argument("--sample_dataset", type=str, required=True, help="Path to the sample dataset.")
     parser.add_argument("--score_dataset_output_path", type=str, required=True, help="Path to save MBR-scored dataset.")
     parser.add_argument("--dataset_output_path", type=str, required=True, help="Path to save final dataset.")
+    parser.add_argument("--filtered_output_path", type=str, required=True, help="Path to save filtered dataset.")
     parser.add_argument("--output_path", type=str, required=True, help="Path to save evaluation metrics.")
     parser.add_argument("--encoder_model_name_or_path", type=str, required=True, help="Path to the sentence embedding model.")
     args = parser.parse_args()
