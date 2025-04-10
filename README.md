@@ -26,7 +26,6 @@ These curated samples are subsequently used for large-scale multimodal pre-train
 
 Extensive experiments demonstrate that SICOG produces next-generation foundation MLLMs with substantially improved multimodal cognition, outperforming prevailing pre-training approaches. These findings empirically establish SICOG as a promising framework for realizing a complete self-improving paradigm.
 
----
 
 ```bibtex
 @article{zhang2025will,
