@@ -1,0 +1,4 @@
+# ninja log v5
+0	17239	1736820096199826120	/home/jeeves/xyzhang/mm-self-training/build/temp.linux-x86_64-cpython-312/featup/adaptive_conv_cuda/adaptive_conv_cuda.o	bc36d69618c88dc4
+0	49573	1736820128524042035	/home/jeeves/xyzhang/mm-self-training/build/temp.linux-x86_64-cpython-312/featup/adaptive_conv_cuda/adaptive_conv_kernel.o	250805668b2a3196
+3	17784	1736820146708163503	/home/jeeves/xyzhang/mm-self-training/build/temp.linux-x86_64-cpython-312/featup/adaptive_conv_cuda/adaptive_conv.o	8ecd6012d213a388
