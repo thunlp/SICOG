@@ -1,3 +1,0 @@
-Loading vision tower: /mnt/data/user/tc_agi/zyp/featup/models/huggingface/hub/models--openai--clip-vit-large-patch14-336
----------init adapt_vision_model---------
----------from frozen ckpt---------
